@@ -74,6 +74,11 @@ public class MessageUtil {
     public static final String REQ_MESSAGE_TYPE_EVENT = "event";
 
     /**
+     * 请求消息类型：视频
+     */
+    public static final String REQ_MESSAGE_TYPE_VIDEO = "video";
+
+    /**
      * 事件类型：subscribe(订阅)
      */
     public static final String EVENT_TYPE_SUBSCRIBE = "subscribe";

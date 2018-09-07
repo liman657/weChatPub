@@ -49,22 +49,31 @@ public class CoreService {
             if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) {
                 respContent = "您发送的是文本消息！";
             }
+
             // 图片消息
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_IMAGE)) {
                 respContent = "您发送的是图片消息！";
             }
+
             // 地理位置消息
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_LOCATION)) {
                 respContent = "您发送的是地理位置消息！";
             }
+
             // 链接消息
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_LINK)) {
                 respContent = "您发送的是链接消息！";
             }
+
             // 音频消息
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_VOICE)) {
                 respContent = "您发送的是音频消息！";
             }
+            //视频消息
+            else if(msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_VIDEO)){
+                respContent="居然敢给我发小视频！";
+            }
+
             // 事件推送
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_EVENT)) {
                 // 事件类型
