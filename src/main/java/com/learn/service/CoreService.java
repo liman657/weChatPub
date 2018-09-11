@@ -1,7 +1,7 @@
 package com.learn.service;
 
 import com.learn.message.response.TextMessage;
-import com.learn.message.MessageUtil;
+import com.learn.util.MessageUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -34,7 +34,8 @@ public class CoreService {
             String fromUserName = requestMap.get("FromUserName");
             // 公众帐号
             String toUserName = requestMap.get("ToUserName");
-            // 消息类型
+
+            // 消息类型request中会封装一个消息类型
             String msgType = requestMap.get("MsgType");
 
             // 回复文本消息

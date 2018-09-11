@@ -14,6 +14,7 @@ import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 
 import javax.net.ssl.*;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -25,7 +26,7 @@ import java.security.cert.X509Certificate;
  * QQ:657271181
  * e-mail:liman65727@sina.com
  *
- * 微信在消息多媒体消息的时候，会先去获取access token，之后再响应消息。
+ * 微信在消息多媒体消息的时候，会先去获取access_token，之后再响应消息。
  */
 public class WeChatApiUtil {
 
@@ -35,15 +36,15 @@ public class WeChatApiUtil {
     //素材上传 post
     private static final String UPLOAD_MEDIA = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s";
 
-    //素材下载 不支持视频文件的下载 get
-    private static final String DOWNLAND_MEDIA = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=%s&media_id=%s";
+    //素材下载 不支持视频文件的下载，只能用get请求
+    private static final String DOWNLOAD_MEDIA = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=%s&media_id=%s";
 
     public static String getTokenUrl(String appId,String appSecret){
         return String.format(ACCESS_TOKEN,appId,appSecret);
     }
 
-    public static String getDownlandUrl(String token,String mediaId){
-        return String.format(DOWNLAND_MEDIA,token,mediaId);
+    public static String getDownloadUrl(String token,String mediaId){
+        return String.format(DOWNLOAD_MEDIA,token,mediaId);
     }
 
     /**
@@ -72,6 +73,7 @@ public class WeChatApiUtil {
         return token;
     }
 
+
     /**
      * 微信服务器素材上传
      * @param file 表单名称media
@@ -96,6 +98,8 @@ public class WeChatApiUtil {
         PostMethod post = new PostMethod(url);
         post.setRequestHeader("Connection","Keep-Alive");
         post.setRequestHeader("Cache-Control","no-cache");
+
+        //http上传的文件
         FilePart media;
 
         HttpClient httpClient = new HttpClient();
@@ -115,7 +119,7 @@ public class WeChatApiUtil {
             post.setRequestEntity(entity);
 
             int status = httpClient.executeMethod(post);
-            if(status == HttpStatus.SC_OK){
+            if(status == HttpStatus.SC_OK){//文件上传成功
                 String text = post.getResponseBodyAsString();
                 jsonObject = JSONObject.parseObject(text);
             }else{
@@ -127,6 +131,131 @@ public class WeChatApiUtil {
         }
 
         return jsonObject;
+    }
+
+    /**
+     * 多媒体下载接口
+     *
+     * @param fileName 素材存储文件路径
+     * @param token    认证token
+     * @param mediaId  素材ID（对应上传后获取到的ID）
+     * @return 素材文件
+     * @comment 不支持视频文件的下载
+     */
+    public static File downloadMedia(String fileName, String token,
+                                     String mediaId) {
+        //获取下载的url
+        String url = getDownloadUrl(token, mediaId);
+        return httpRequestToFile(fileName, url, "GET", null);
+    }
+
+    /**
+     * 以http方式发送请求,并将请求响应内容输出到文件
+     *
+     * @param path   请求路径
+     * @param method 请求方法
+     * @param body   请求数据
+     * @return 返回响应的存储到文件
+     */
+    public static File httpRequestToFile(String fileName, String path, String method, String body) {
+        if (fileName == null || path == null || method == null) {
+            return null;
+        }
+
+        File file = null;
+        HttpURLConnection conn = null;
+        InputStream inputStream = null;
+        FileOutputStream fileOut = null;
+        try {
+            URL url = new URL(path);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod(method);
+            if (null != body) {
+                //这里才是真正的请求服务器文件
+                System.out.println("开始请求服务器，下载文件");
+                OutputStream outputStream = conn.getOutputStream();
+                outputStream.write(body.getBytes("UTF-8"));
+                outputStream.close();
+            }
+
+            inputStream = conn.getInputStream();
+            if (inputStream != null) {
+                file = new File(fileName);
+            } else {
+                return file;
+            }
+
+            //写入到文件
+            fileOut = new FileOutputStream(file);
+            if (fileOut != null) {
+                int c = inputStream.read();
+                while (c != -1) {
+                    fileOut.write(c);
+                    c = inputStream.read();
+                }
+            }
+        } catch (Exception e) {
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+
+            /*
+             * 必须关闭文件流
+             * 否则JDK运行时，文件被占用其他进程无法访问
+             */
+            try {
+                if(inputStream!=null){
+                    inputStream.close();
+                }
+
+                if(fileOut!=null){
+                    fileOut.close();
+                }
+            } catch (IOException execption) {
+                execption.printStackTrace();
+            }
+        }
+        return file;
+    }
+
+    /**
+     * 上传素材
+     * @param filePath 媒体文件路径(绝对路径)
+     * @param type 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
+     * @return
+     */
+    public static JSONObject uploadMedia(String filePath,String type){
+        File f = new File(filePath); // 获取本地文件
+        if(!f.exists()){
+            System.out.println("文件不存在");
+            throw new RuntimeException("上传文件不存在！");
+        }
+        String appId = "wx67d380625fc54a61";
+        String appSecret = "daf984a43081e615348be9f7ae55f688";
+        String token = WeChatApiUtil.getToken(appId, appSecret);
+        JSONObject jsonObject = uploadMedia(f, token, type);
+        return jsonObject;
+    }
+
+
+
+    /**
+     * 多媒体下载接口
+     *
+     * @param fileName 素材存储文件路径
+     * @param mediaId  素材ID（对应上传后获取到的ID）
+     * @return 素材文件
+     * @comment 不支持视频文件的下载
+     */
+    public static File downloadMedia(String fileName, String mediaId) {
+        String appId = "wxbe4d433e857e8bb1";
+        String appSecret = "ccbc82d560876711027b3d43a6f2ebda";
+        String token = WeChatApiUtil.getToken(appId, appSecret);
+        return downloadMedia(fileName,token,mediaId);
     }
 
     /**

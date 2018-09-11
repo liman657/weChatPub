@@ -28,6 +28,10 @@ import java.io.IOException;
         })
 public class AccessTokenServlet extends HttpServlet {
 
+    /**
+     * Servlet启动的时候，会默认启动一个线程去获取access_token
+     * @throws ServletException
+     */
     @Override
     public void init() throws ServletException {
         System.out.println("启动webservlet");
@@ -71,6 +75,12 @@ public class AccessTokenServlet extends HttpServlet {
 
     }
 
+    /**
+     * 获取access_token
+     * @param appID
+     * @param appsecret
+     * @return
+     */
     private AccessToken getAccessToken(String appID,String appsecret){
         HttpHelperUtil httpHelperUtil = new HttpHelperUtil();
 
