@@ -464,7 +464,7 @@ public class MessageUtil {
         // 开发者微信号
         String toUserName = map.get("ToUserName");
         NewsItem item = new NewsItem();
-        item.Title = "微信开发学习总结（一）——微信开发环境搭建";
+        item.Title = "spring boot 学习总结（一）——spring boot开发环境搭建";
         item.Description = "工欲善其事，必先利其器。要做微信公众号开发，那么要先准备好两样必不可少的东西：\n" +
                 "\n" +
                 "　　1、要有一个用来测试的公众号。\n" +
@@ -593,6 +593,11 @@ public class MessageUtil {
         return buildTextMessage(map, result);
     }
 
+    /**
+     * 处理文本消息
+     * @param map
+     * @return
+     */
     private static String handleTextMessage(Map map) {
         //响应消息
         String responseMessage;
@@ -600,18 +605,18 @@ public class MessageUtil {
         String content = map.get("Content").toString();
         switch (content) {
             case "文本":
-                String msgText = "又要开始写博客总结了,欢迎朋友们访问我在博客园上面写的博客\n" +
-                        "<a href=\"http://www.cnblogs.com/xdp-gacl\">somebody的博客</a>";
+                String msgText = "又要开始写博客总结了,欢迎朋友们访问我在csdn上面写的博客\n" +
+                        "<a href=\"https://blog.csdn.net/liman65727\">liman65727的专栏</a>";
                 responseMessage = buildTextMessage(map, msgText);
                 break;
             case "图片":
                 //通过素材管理接口上传图片时得到的media_id
-                String imgMediaId = "dSQCiEHYB-pgi7ib5KpeoFlqpg09J31H28rex6xKgwWrln3HY0BTsoxnRV-xC_SQ";
+                String imgMediaId = "d4QXc-uZQGpiRfuR_-KH7p4rYnSdPk3vsGyxuC5-Ns6rTqlIXw_6PZcyClMe6TkE";
                 responseMessage = buildImageMessage(map, imgMediaId);
                 break;
             case "语音":
                 //通过素材管理接口上传语音文件时得到的media_id
-                String voiceMediaId = "h3ul0TnwaRPut6Tl1Xlf0kk_9aUqtQvfM5Oq21unoWqJrwks505pkMGMbHnCHBBZ";
+                String voiceMediaId = "l3spO_qrC0B1FMnoMujvYrNCzaobtyZALY9_h40OzXHRCqcuOrVXxrg-9f9L8Dxe";
                 responseMessage = buildVoiceMessage(map,voiceMediaId);
                 break;
             case "图文":
@@ -621,13 +626,13 @@ public class MessageUtil {
                 Music music = new Music();
                 music.title = "赵丽颖、许志安 - 乱世俱灭";
                 music.description = "电视剧《蜀山战纪》插曲";
-                music.musicUrl = "http://gacl.ngrok.natapp.cn/media/music/music.mp3";
-                music.hqMusicUrl = "http://gacl.ngrok.natapp.cn/media/music/music.mp3";
+                music.musicUrl = "http://xwtest.tushengkeji.com/weChatPub/media/music/music.mp3";
+                music.hqMusicUrl = "http://xwtest.tushengkeji.com/weChatPub/media/music/music.mp3";
                 responseMessage = buildMusicMessage(map, music);
                 break;
             case "视频":
                 Video video = new Video();
-                video.mediaId = "GqmIGpLu41rtwaY7WCVtJAL3ZbslzKiuLEXfWIKYDnHXGObH1CBH71xtgrGwyCa3";
+                video.mediaId = "n4T9hI51USaQcltFly549C2nB0IHvFZcqQ9DdLxdGtqZ-5_V6mFXz7P8t2TZYjDd";
                 video.title = "小苹果";
                 video.description = "小苹果搞笑视频";
                 responseMessage = buildVideoMessage(map, video);

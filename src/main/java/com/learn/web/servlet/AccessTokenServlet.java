@@ -45,7 +45,7 @@ public class AccessTokenServlet extends HttpServlet {
             public void run() {
                 while(true){
                     try {
-                        AccessTokenInfo.accessToken = getAccessToken(appID,appsecret);
+//                        AccessTokenInfo.accessToken = getAccessToken(appID,appsecret);
 
                         if(AccessTokenInfo.accessToken!=null){
                             Thread.sleep(7000*1000);

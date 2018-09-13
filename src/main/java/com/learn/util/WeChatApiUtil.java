@@ -31,7 +31,7 @@ import java.security.cert.X509Certificate;
 public class WeChatApiUtil {
 
     //获取access_token接口
-    private static final String ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
+    private static final String GET_ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
 
     //素材上传 post
     private static final String UPLOAD_MEDIA = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s";
@@ -39,8 +39,17 @@ public class WeChatApiUtil {
     //素材下载 不支持视频文件的下载，只能用get请求
     private static final String DOWNLOAD_MEDIA = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=%s&media_id=%s";
 
+    //appId
+    private static final String appId = "wx67d380625fc54a61";
+
+    //appSecret
+    private static final String appSecret="daf984a43081e615348be9f7ae55f688";
+
+    //access_token
+    private static String access_token=null;
+
     public static String getTokenUrl(String appId,String appSecret){
-        return String.format(ACCESS_TOKEN,appId,appSecret);
+        return String.format(GET_ACCESS_TOKEN,appId,appSecret);
     }
 
     public static String getDownloadUrl(String token,String mediaId){
@@ -57,20 +66,19 @@ public class WeChatApiUtil {
         if(appId == null || appSecret == null){
             return null;
         }
-
-        String token = null;
-        String tokenUrl = getTokenUrl(appId,appSecret);
-        String response = httpsRequestToString(tokenUrl,"GET","");
-
-        JSONObject jsonObject = JSON.parseObject(response);
-        if(null!=jsonObject){
-            try{
-                token = jsonObject.getString("access_token");
-            }catch (Exception e){
-                token = null;
+        if(access_token==null){ //access_token为空的时候，会去请求，不为空的时候，直接返回
+            String tokenUrl = getTokenUrl(appId,appSecret);
+            String response = httpsRequestToString(tokenUrl,"GET","");
+            JSONObject jsonObject = JSON.parseObject(response);
+            if(null!=jsonObject){
+                try{
+                    access_token = jsonObject.getString("access_token");
+                }catch (Exception e){
+                    access_token = null;
+                }
             }
         }
-        return token;
+        return access_token;
     }
 
 
@@ -111,6 +119,7 @@ public class WeChatApiUtil {
         try{
             media = new FilePart("media",file);
 
+            //传入进来的access_token需要上送到腾讯服务器
             Part[] parts = new Part[]{
              new StringPart("access_token",token),new StringPart("type",type),media
             };
@@ -234,8 +243,6 @@ public class WeChatApiUtil {
             System.out.println("文件不存在");
             throw new RuntimeException("上传文件不存在！");
         }
-        String appId = "wx67d380625fc54a61";
-        String appSecret = "daf984a43081e615348be9f7ae55f688";
         String token = WeChatApiUtil.getToken(appId, appSecret);
         JSONObject jsonObject = uploadMedia(f, token, type);
         return jsonObject;

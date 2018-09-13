@@ -1,6 +1,7 @@
 package com.learn.web.servlet;
 
 import com.learn.service.CoreService;
+import com.learn.util.MessageUtil;
 import com.learn.util.SignUtil;
 
 import javax.servlet.ServletException;
@@ -26,11 +27,7 @@ public class CoreServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         System.out.println("===================开始消息的处理==================");
-
-        System.out.println(request.getContextPath());
-
         Map<String, String[]> parameterMap = request.getParameterMap();
-
         System.out.println("请求参数列表");
         for(Map.Entry<String,String[]> entity: parameterMap.entrySet()){
             System.out.println(entity.getKey());
@@ -44,7 +41,11 @@ public class CoreServlet extends HttpServlet {
 
         try{
             // 调用核心业务类接收消息、处理消息
-            respMessage = CoreService.processRequest(request);
+//            respMessage = CoreService.processRequest(request);
+
+            //解析微信服务器发过来的xml信息
+            Map<String, String> requestMap = MessageUtil.parseXml(request);
+            respMessage = MessageUtil.buildResponseMessage(requestMap);
 
             System.out.println(respMessage);
         }catch (Exception e){
